@@ -1,0 +1,170 @@
+Product
+==========================================================================================================================================================
+✔ name – Pesticide product name
+✔ hsc_code – Harmonized System Code for classification
+✔ packing – Packaging details (e.g., 1L bottle, 5kg bag)
+✔ content_technical – Active ingredient(s) and percentage
+✔ stock_id - Reference to stock details
+✔ price_id - Reference to price details
+✔ categories – (e.g., herbicide, insecticide, fungicide)
+
+
+CREATE TABLE Product (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    hsc_code VARCHAR(50),
+    packing VARCHAR(100),
+    content_technical TEXT,
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES Category(category_id)
+);
+
+
+Product_Image
+==========================================================================================================================================================
+
+CREATE TABLE Product_Image (
+    image_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,  -- Store image file path or URL
+    is_primary BOOLEAN DEFAULT FALSE, -- Indicates if this is the main product image
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Product(product_id) ON DELETE CASCADE
+);
+
+
+Stock
+==========================================================================================================================================================
+
+✔ stock_id – Unique identifier for each production batch
+✔ product_id
+✔ manufacturing_date – Date of manufacture
+✔ stock_quantity – Current stock available
+✔ reorder_level – Minimum stock level before replenishment
+
+
+CREATE TABLE Stock (
+    stock_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    manufacturing_date DATE,
+    stock_quantity INT DEFAULT 0,
+    reorder_level INT DEFAULT 0,
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+
+Price
+==========================================================================================================================================================
+
+✔ price_id – Price detials
+✔ product_id
+✔ cost_price – Cost per unit
+✔ selling_price – Selling price per unit
+✔ discount – Any applicable discount percentage
+
+
+CREATE TABLE Price (
+    price_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    cost_price DECIMAL(10,2) NOT NULL,
+    selling_price DECIMAL(10,2) NOT NULL,
+    discount DECIMAL(5,2) DEFAULT 0,
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+
+
+Usage_instruction_application:
+==========================================================================================================================================================
+
+✔ instruction_id
+✔ product_id
+✔ target_pests – List of pests it controls (e.g., aphids, mites)
+✔ application_dosage – Recommended dosage per hectare/liter
+✔ application_method – Spraying, soil application, seed treatment, etc.
+✔ application_frequency
+✔ phytotoxicity – Any known adverse effects on plants
+
+
+CREATE TABLE Usage_Instruction_Application (
+    instruction_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    target_pests TEXT,
+    application_dosage VARCHAR(255),
+    application_method VARCHAR(255),
+    application_frequency VARCHAR(255),
+    phytotoxicity TEXT,
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+
+
+Category:
+==========================================================================================================================================================
+
+✔ category_id
+✔ name
+✔ description
+
+
+CREATE TABLE Category (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT
+);
+
+
+Customer:
+==========================================================================================================================================================
+
+✔ customer_id
+✔ Name
+✔ address:
+✔ village:
+✔ city:
+✔ longitude
+✔ latitude
+✔ phone
+✔ whatsapp number
+✔ email
+
+
+CREATE TABLE Customer (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    address TEXT,
+    village VARCHAR(255),
+    city VARCHAR(255),
+    longitude DECIMAL(10,7),
+    latitude DECIMAL(10,7),
+    phone VARCHAR(20),
+    whatsapp_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE
+);
+
+
+
+
+
+==========================================================================================================================================================
+Pending 
+==========================================================================================================================================================
+
+suggested pesticide
+
+1. suggestion_id
+2. dosage_id
+3. customer_id
+4. product_id
+5. suggestion_reason
+6. Quantity
+7. created_at
+8. updated_at
+
+Doage
+
+dosage_id
+customer_id
+date
+name:
+isPurchased

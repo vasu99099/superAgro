@@ -4,5 +4,24 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "mysql://vasu_bhimani:deep70@radixusers2.com:3306/vasu_bhimani"
+  shadowDatabaseUrl = "mysql://vasu_bhimani:deep70@radixusers2.com:3306/vasu_bhimani1"
 }
+
+
+model User {
+  user_id   Int     @id @default(autoincrement())  // Unique ID for each user
+  username  String  @unique                        // Unique username
+  password  String                                 // Hashed password
+  role      Role    @relation(fields: [role_id], references: [role_id]) // Relationship with Role table
+  role_id   Int                                     // Foreign key reference to Role
+  created_at DateTime @default(now())               // Timestamp when user is created
+  updated_at DateTime @updatedAt                    // Timestamp when user is updated
+}
+
+model Role {
+  role_id   Int     @id @default(autoincrement())  // Unique Role ID
+  name      String  @unique                        // Role name (e.g., Admin, User, Manager)
+  users     User[]                                // One-to-many relationship with User
+}
+
