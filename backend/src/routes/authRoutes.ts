@@ -1,10 +1,9 @@
 import { Router } from 'express';
+import { login } from '../controller/user.controller';
+import { ROUTES } from '../constants/routes';
 
 const authRoutes: Router = Router();
 
-authRoutes.get('/', (req, res) => {
-  console.log('Hi! vasu');
-  res.status(200).json({ name: 'vasu' });
-});
+authRoutes.post(ROUTES.AUTH.LOGIN, login);
 
 export default authRoutes;

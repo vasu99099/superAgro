@@ -1,3 +1,6 @@
-export const BATH_PATH = {
-  AUTH: '/auth'
+export const ROUTES = {
+  AUTH: {
+    BASE: '/auth',
+    LOGIN: '/login'
+  }
 };

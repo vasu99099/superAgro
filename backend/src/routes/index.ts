@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import authRoutes from './authRoutes';
-import { BATH_PATH } from '../constants/routes';
+import { ROUTES } from '../constants/routes';
 
 const indexRoutes: Router = Router();
 
-indexRoutes.use(BATH_PATH.AUTH, authRoutes);
+indexRoutes.use(ROUTES.AUTH.BASE, authRoutes);
 
 export default indexRoutes;

@@ -1,3 +1,0 @@
-PORT = 5001
-NODE_ENV = dev
-DATABASE_URL="mysql://vasu_bhimani:deep70@radixusers2.com:3306/vasu_bhimani"
