@@ -1,19 +1,18 @@
+import ERROR_MESSAGES from '../constants/errorMessages';
 import STATUS_CODES from '../constants/statusCode';
 import prisma from '../lib/prismaInit';
 import AppError from '../utils/AppError';
-import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import BcryptService from '../utils/bcryptService';
+import prismaErrorHandler from '../utils/prismaErrorHandler';
 
 export interface User {
-  username: string,
-  password:string,
-  role_id: number,
-  contact_number:string,
-  email:string,
-  firstname:string,
-  lastname:string,
-
+  username: string;
+  password: string;
+  role_id: number;
+  contact_number: string;
+  email: string;
+  firstname: string;
+  lastname: string;
 }
 
 class UserService {
@@ -23,51 +22,47 @@ class UserService {
         where: { email }
       });
       if (!user) {
-        throw new AppError('User not found', STATUS_CODES.NOT_FOUND);
+        throw new AppError(ERROR_MESSAGES.AUTH.NO_ACCOUND_FOUND, STATUS_CODES.NOT_FOUND);
       }
       return user;
     } catch (error) {
-      throw new AppError('Database error', STATUS_CODES.INTERNAL_SERVER_ERROR);
+      throw prismaErrorHandler(error);
     }
   }
   async registerUser(user: User) {
     try {
       const { username, password, role_id, contact_number, email, firstname, lastname } = user;
 
-      // Check if user already exists
-      const existingUser = await prisma.user.findUnique({ where: { username } });
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+
       if (existingUser) {
-        throw new AppError("User already exists", STATUS_CODES.CONFLICT);
+        throw new AppError(ERROR_MESSAGES.AUTH.ALREADY_REGISTERED, STATUS_CODES.CONFLICT);
       }
 
       // Hash the password
       const hashedPassword = await BcryptService.hashPassword(password);
-      
+
       if (!hashedPassword) {
-        throw new AppError("Some thing went wrong", STATUS_CODES.NOT_FOUND);
+        throw new AppError(ERROR_MESSAGES.SOMETHING_WRONG, STATUS_CODES.NOT_FOUND);
       }
 
-      // Create user
       const newUser = await prisma.user.create({
         data: {
           username,
           password: hashedPassword,
-          role_id,
+          role_id: Number(role_id),
           contact_number,
           email,
           firstname,
-          lastname,
-        },
+          lastname
+        }
       });
 
-      return newUser; // Return the created user if needed
-
+      return newUser;
     } catch (error) {
-      console.error("Error registering user:", error);
-      throw new AppError("Database error", STATUS_CODES.INTERNAL_SERVER_ERROR);
+      throw prismaErrorHandler(error);
     }
   }
 }
-
 
 export default UserService;

@@ -7,21 +7,14 @@ import cors, { CorsOptions } from 'cors';
 const expressInit = async (server: Express) => {
   try {
     const PORT = config.PORT || 5000;
+
     const corsOptions: CorsOptions = {
-      origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-        console.log('Request Origin:', origin); // Log the origin of the request
-    
-        if (!origin || origin === 'http://192.168.102.78:3000') {
-          callback(null, true); // Allow request
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
+      origin: config.ALLOW_ORIGIN,
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
       credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE"], 
-      optionsSuccessStatus: 200 // For legacy browser support
+      optionsSuccessStatus: 200
     };
-    
+
     server.use(cors(corsOptions));
     server.use(express.json());
     server.use(indexRoutes);

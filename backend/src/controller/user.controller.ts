@@ -2,41 +2,70 @@ import { NextFunction, Request, Response } from 'express';
 import UserService, { User } from '../services/UserService';
 import STATUS_CODES from '../constants/statusCode';
 import sendResponse from '../utils/sendResponse';
-import AppError from '../utils/AppError';
 import BcryptService from '../utils/bcryptService';
+import { loginSchema, registerUserSchema } from '../validationSchema/user.validation';
+import { validateInput } from '../validationSchema';
+import ERROR_MESSAGES from '../constants/errorMessages';
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+const login = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const {email, password} = req.body;
-    console.log(email, password);
+    const { email, password } = req.body;
+    const isValid = validateInput(loginSchema, req.body, res);
+    if (!isValid) {
+      return;
+    }
+
     const userService = new UserService();
     const user = await userService.getUserByEmail(email);
+
     const isMatch = await BcryptService.comparePassword(password, user.password);
-    if(isMatch) {
-      sendResponse(res, true, STATUS_CODES.SUCCESS, 'User Authentcated successfully');
+
+    if (isMatch) {
+      return sendResponse(res, true, STATUS_CODES.SUCCESS, ERROR_MESSAGES.AUTH.SUCCESS_LOGIN);
     } else {
-      sendResponse(res, false, STATUS_CODES.UNAUTHORIZED, 'Invalid username or password');
+      return sendResponse(
+        res,
+        false,
+        STATUS_CODES.UNAUTHORIZED,
+        ERROR_MESSAGES.AUTH.INVALID_EMAIL_PASSWORD
+      );
     }
-    res.status(STATUS_CODES.SUCCESS).json(user);
   } catch (e) {
     next(e);
   }
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
-  try {   
+const register = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const isValid = validateInput(registerUserSchema, req.body, res);
+
+    if (!isValid) {
+      return;
+    }
+
     const userService = new UserService();
-    await userService.registerUser(req.body as User);
-    sendResponse(res, true, STATUS_CODES.CREATED, 'User registered successfully');
+    const { password, ...userData } = await userService.registerUser(req.body as User);
+
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.CREATED,
+      ERROR_MESSAGES.AUTH.REGISTER_SUCCESS,
+      userData
+    );
   } catch (e) {
     next(e);
   }
 };
-export const getUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {   
-    
-    sendResponse(res, true, STATUS_CODES.CREATED, 'User registered successfully');
+
+const getUser = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    return sendResponse(res, true, STATUS_CODES.CREATED, 'User registered successfully');
   } catch (e) {
     next(e);
   }
 };
+
+const userController = { login, register, getUser };
+
+export default userController;

@@ -1,8 +1,8 @@
 import { Response } from 'express';
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   success: boolean;
-  message: string;
+  message: string | object;
   data?: T | null;
   error?: string | null;
 }
@@ -11,7 +11,7 @@ const sendResponse = <T>(
   res: Response,
   success: boolean,
   statusCode: number = 200,
-  message: string,
+  message: string | object,
   data: T | null = null,
   error: string | null = null
 ): Response<ApiResponse<T>> => {
