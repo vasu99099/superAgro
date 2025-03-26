@@ -4,7 +4,8 @@ import { Response } from 'express';
 import STATUS_CODES from '../constants/statusCode';
 
 export const validateInput = (schema: Joi.ObjectSchema, data: object, res: Response) => {
-  const { error, value } = schema.validate(data, { abortEarly: false, allowUnknown: true });
+  const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true });
+
   if (!error) {
     return true;
   }

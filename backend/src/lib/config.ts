@@ -12,5 +12,9 @@ export default {
   NODE_ENV: process.env.NODE_ENV || 'dev',
   PORT: process.env.PORT || 5000,
   DATABASE_URL: process.env.DATABASE_URL || '',
-  ALLOW_ORIGIN: origins
+  ALLOW_ORIGIN: origins,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || '',
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || '',
+  AWS_REGION: process.env.AWS_REGION || '',
+  AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME || ''
 };

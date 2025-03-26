@@ -63,3 +63,33 @@ export const registerUserSchema = Joi.object({
     'any.required': 'Last name is required'
   })
 });
+
+export const updateUserSchema = registerUserSchema.fork(
+  Object.keys(registerUserSchema.describe().keys),
+  (schema) => schema.optional()
+);
+
+const fileValidationSchema = Joi.object({
+  profile_image: Joi.object({
+    originalname: Joi.string().required().messages({
+      'any.required': 'File name is required.'
+    }),
+    mimetype: Joi.string().valid('image/jpeg', 'image/png').required().messages({
+      'any.only': 'Only JPG, PNG images are allowed.',
+      'any.required': 'File is required.'
+    }),
+    size: Joi.number()
+      .max(2 * 1024 * 1024)
+      .required()
+      .messages({
+        'number.max': 'File size must be less than 2MB.',
+        'any.required': 'File size is required.'
+      }) // Max size: 2MB
+  })
+    .required()
+    .messages({
+      'any.required': 'Profile image is required.'
+    })
+});
+
+export default fileValidationSchema;

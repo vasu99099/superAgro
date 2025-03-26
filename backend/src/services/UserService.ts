@@ -4,6 +4,7 @@ import prisma from '../lib/prismaInit';
 import AppError from '../utils/AppError';
 import BcryptService from '../utils/bcryptService';
 import prismaErrorHandler from '../utils/prismaErrorHandler';
+import TmpImageService from './TmpImageService';
 
 export interface User {
   username: string;
@@ -13,13 +14,30 @@ export interface User {
   email: string;
   firstname: string;
   lastname: string;
+  profile_image?: string;
 }
 
 class UserService {
   async getUserByEmail(email: string) {
     try {
       const user = await prisma.user.findUnique({
-        where: { email }
+        where: { email },
+        include: { role: true }
+      });
+      if (!user) {
+        throw new AppError(ERROR_MESSAGES.AUTH.NO_ACCOUND_FOUND, STATUS_CODES.NOT_FOUND);
+      }
+      return user;
+    } catch (error) {
+      throw prismaErrorHandler(error);
+    }
+  }
+
+  async getUserById(user_id: number) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { user_id },
+        include: { role: true }
       });
       if (!user) {
         throw new AppError(ERROR_MESSAGES.AUTH.NO_ACCOUND_FOUND, STATUS_CODES.NOT_FOUND);
@@ -59,6 +77,32 @@ class UserService {
       });
 
       return newUser;
+    } catch (error) {
+      throw prismaErrorHandler(error);
+    }
+  }
+
+  async updateUser(user_id: number, updates: Partial<User>) {
+    try {
+      const existingUser = await prisma.user.findUnique({ where: { user_id } });
+
+      if (!existingUser) {
+        throw new AppError(ERROR_MESSAGES.AUTH.NO_ACCOUND_FOUND, STATUS_CODES.NOT_FOUND);
+      }
+
+      if (updates.password) {
+        updates.password = await BcryptService.hashPassword(updates.password);
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { user_id },
+        data: updates
+      });
+
+      if (existingUser.profile_image && updates.profile_image) {
+        await TmpImageService.uploadImage(user_id, existingUser.profile_image);
+      }
+      return updatedUser;
     } catch (error) {
       throw prismaErrorHandler(error);
     }

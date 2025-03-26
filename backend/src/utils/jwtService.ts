@@ -4,10 +4,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'yourSecretKey';
 const JWT_EXPIRATION = '3h';
 
 const jwtService = {
-  generateToken: (user: { id: number; email: string; name: string }) => {
+  generateToken: (user: { id: number; email: string }) => {
     const payload = {
       id: user.id,
-      email: user.email,
+      email: user.email
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION });

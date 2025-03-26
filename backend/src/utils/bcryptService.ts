@@ -2,12 +2,12 @@
 import bcrypt from 'bcryptjs';
 
 const BcryptService = {
-  async hashPassword(password: string): Promise<string | null> {
+  async hashPassword(password: string): Promise<string> {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;
     } catch (error) {
-      return null;
+      return '';
     }
   },
 

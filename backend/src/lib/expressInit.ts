@@ -3,6 +3,7 @@ import errorHandler from '../middleware/errorHandler';
 import indexRoutes from '../routes';
 import config from './config';
 import cors, { CorsOptions } from 'cors';
+import { getUploadSignedUrl } from '../utils/S3Service';
 
 const expressInit = async (server: Express) => {
   try {

@@ -10,7 +10,8 @@ const ERROR_MESSAGES = {
     INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
     SUCCESS_LOGIN: 'Logged in successfully',
     LOGOUT_SUCCESS: 'Logged out successfully',
-    REGISTER_SUCCESS: 'User registered successfully'
+    REGISTER_SUCCESS: 'User registered successfully',
+    USER_NOT_FOUND: 'User not exist'
   },
   POST: {
     POST_NO_FOUND: 'Post Not Found',
