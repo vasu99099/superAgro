@@ -17,8 +17,9 @@ const ERROR_MESSAGES = {
     POST_NO_FOUND: 'Post Not Found',
     POST_CREATE_SUCCESS: 'Post created successfully',
     POST_DELETED_SUCCESS: 'Post deleted successfully',
-    POST_UPDATED_SUCCSS: 'Post updated successfully'
-  }
+    POST_UPDATED_SUCCSS: 'Post updated successfully',
+    POST_ALREADY_EXISTS: "This Record Allready Exists"
+  },
 };
 
 export default ERROR_MESSAGES;

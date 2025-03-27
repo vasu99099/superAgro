@@ -10,5 +10,12 @@ export const ROUTES = {
     WHO_M_I: '/whomi',
     UPLOAD_PROFILE_PIC: '/uploadprofilepic',
     UPDATE_PROFILE: '/profileupdate'
+  },
+  CATEGORY: {
+    BASE: '/category',
+    GETALLCATEGORY: '/getAllcategory',
+    ADDCATEGORY: '/addCategory',
+    DELETECATEGORY: '/deleteCategory',
+    UPDATECATEGORY: '/updateCategory'
   }
 };

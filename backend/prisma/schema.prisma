@@ -41,3 +41,21 @@ model TempImage {
   status    ImageStatus @default(PENDING)
   createdAt DateTime    @default(now())
 }
+
+model Category {
+  category_id Int    @id @default(autoincrement())
+  name        String @unique
+  description String?
+  category Product[]
+}
+
+model Product {
+  product_id        Int     @id @default(autoincrement())
+  name             String  @db.VarChar(255)
+  hsc_code         String? @db.VarChar(50)
+  packing          String? @db.VarChar(100)
+  content_technical String? @db.Text
+  category_id      Int @unique
+  category Category @relation(fields: [category_id], references: [category_id])
+}
+  // category  Category @relation(fields: [category_id], references: [category_id])
