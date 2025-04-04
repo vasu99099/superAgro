@@ -1,8 +1,9 @@
-import ERROR_MESSAGES from "../constants/errorMessages";
-import STATUS_CODES from "../constants/statusCode";
-import prisma from "../lib/prismaInit";
-import AppError from "../utils/AppError";
-import prismaErrorHandler from "../utils/prismaErrorHandler";
+import ERROR_MESSAGES from '../constants/errorMessages';
+import STATUS_CODES from '../constants/statusCode';
+import prisma from '../lib/prismaInit';
+import AppError from '../utils/AppError';
+import { paginateAndSort } from '../utils/pagination';
+import prismaErrorHandler from '../utils/prismaErrorHandler';
 
 export interface Category {
   name: string;
@@ -10,56 +11,41 @@ export interface Category {
 }
 
 class CategoryService {
-  async getAllCategory(query : any) {
+  async getAllCategory(query: any) {
     try {
-      let { page = 1, order = 'desc', order_by = '', page_size = 10, search = '' } = query;
-        // Convert values to appropriate types
-        const take = parseInt(page_size) || 10;
-        const skip = (parseInt(page) - 1) * take;
-        order = ['asc', 'desc'].includes(order.toLowerCase()) ? order.toLowerCase() : 'desc';
+      const { skip, take, orderBy, where } = paginateAndSort(query);
 
-        // Define filtering conditions
-        const where = search
-            ? {
-                  name: {
-                      contains: search,
-                  },
-              }
-            : {};
+      const [allCategories, totalRecords] = await prisma.$transaction([
+        prisma.category.findMany({ where, orderBy, skip, take }),
+        prisma.category.count({ where })
+      ]);
 
-        const allCategories = await prisma.category.findMany({
-            where,
-            orderBy: order_by ? { [order_by]: order } : undefined,
-            skip,
-            take,
-        });
-        const totalRecords = await prisma.category.count({ where });     
-        return {
-          totalRecords,
-          data: allCategories
-        };
+      return {
+        totalRecords,
+        data: allCategories
+      };
     } catch (error) {
       throw prismaErrorHandler(error);
     }
   }
+
   async addCategory(category: Category) {
     try {
       const { name, description } = category;
 
       const existingCategory = await prisma.category.findUnique({
-        where: { name },
+        where: { name }
       });
+
       if (existingCategory) {
-        throw new AppError(
-          ERROR_MESSAGES.POST.POST_ALREADY_EXISTS,
-          STATUS_CODES.CONFLICT
-        );
+        throw new AppError(ERROR_MESSAGES.POST.POST_ALREADY_EXISTS, STATUS_CODES.CONFLICT);
       }
+
       const newCategory = await prisma.category.create({
         data: {
           name,
-          description,
-        },
+          description
+        }
       });
       return newCategory;
     } catch (error) {
@@ -69,7 +55,7 @@ class CategoryService {
   async deleteCategory(category_id: number) {
     try {
       const deletedCategory = await prisma.category.delete({
-        where: { category_id },
+        where: { category_id }
       });
       return deletedCategory;
     } catch (error) {
@@ -80,7 +66,7 @@ class CategoryService {
     try {
       const updatedCategory = await prisma.category.update({
         where: { category_id },
-        data: data, // Fields to update
+        data: data
       });
       return updatedCategory;
     } catch (error) {

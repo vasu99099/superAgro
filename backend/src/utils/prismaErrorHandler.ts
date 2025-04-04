@@ -6,10 +6,7 @@ const prismaErrorHandler = (error: any) => {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
-        return new AppError(
-          `Duplicate entry. The value already exists. Error: ${error.message}`,
-          STATUS_CODES.CONFLICT
-        );
+        return new AppError(`Duplicate entry. The value already exists.`, STATUS_CODES.CONFLICT);
       case 'P2003':
         return new AppError('Invalid foreign key reference.', STATUS_CODES.BAD_REQUEST);
       case 'P2025':

@@ -134,7 +134,6 @@ CREATE TABLE Customer (
     name VARCHAR(255) NOT NULL,
     address TEXT,
     village VARCHAR(255),
-    city VARCHAR(255),
     longitude DECIMAL(10,7),
     latitude DECIMAL(10,7),
     phone VARCHAR(20),

@@ -13,19 +13,28 @@ enum ImageStatus {
   CONFIRMED
 }
 
+enum PackingUnit {
+  mg
+  g
+  kg
+  ml
+  l
+}
+
 model User {
-  user_id        Int      @id @default(autoincrement())
-  username       String   @unique
+  user_id        Int       @id @default(autoincrement())
+  username       String    @unique
   password       String
   firstname      String
   lastname       String
-  email          String   @unique
+  email          String    @unique
   profile_image  String?
   contact_number String
-  role           Role     @relation(fields: [role_id], references: [role_id])
+  role           Role      @relation(fields: [role_id], references: [role_id])
   role_id        Int
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  Product        Product[]
 }
 
 model Role {
@@ -43,19 +52,90 @@ model TempImage {
 }
 
 model Category {
-  category_id Int    @id @default(autoincrement())
-  name        String @unique
+  category_id Int       @id @default(autoincrement())
+  name        String    @unique
   description String?
-  category Product[]
+  category    Product[]
+}
+
+model City {
+  id        Int       @id @default(autoincrement())
+  name      String
+  latitude  Float
+  longitude Float
+  state     String?
+  country   String?
+  villages  Village[]
+}
+
+model Village {
+  id         Int    @id @default(autoincrement())
+  city_id    Int
+  name       String
+  latitude   Float
+  longitude  Float
+  population Int?
+  area_sq_km Float?
+
+  city     City       @relation(fields: [city_id], references: [id])
+  Customer Customer[]
+  farms    farms[]
+}
+
+model Customer {
+  customer_id     Int      @id @default(autoincrement())
+  name            String   @db.VarChar(255)
+  address         String?  @db.Text
+  village_id      Int
+  village         Village  @relation(fields: [village_id], references: [id])
+  phone           String   @unique @db.VarChar(20)
+  whatsapp_number String?  @db.VarChar(20)
+  email           String?  @unique @db.VarChar(255)
+  farms           farms[]
+  created_at      DateTime @default(now()) @map("created_at")
+  updated_at      DateTime @updatedAt @map("updated_at")
+}
+
+model farms {
+  farm_id     Int      @id @default(autoincrement())
+  farm_name   String   @db.VarChar(255)
+  customer_id Int
+  customer    Customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade)
+  village_id  Int
+  village     Village  @relation(fields: [village_id], references: [id], onDelete: Cascade)
+  longitude   Decimal? @db.Decimal(10, 7)
+  latitude    Decimal? @db.Decimal(10, 7)
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
 }
 
 model Product {
-  product_id        Int     @id @default(autoincrement())
-  name             String  @db.VarChar(255)
-  hsc_code         String? @db.VarChar(50)
-  packing          String? @db.VarChar(100)
-  content_technical String? @db.Text
-  category_id      Int @unique
-  category Category @relation(fields: [category_id], references: [category_id])
+  product_id        Int                @id @default(autoincrement())
+  userId            Int
+  user              User               @relation(fields: [userId], references: [user_id])
+  name              String             @db.VarChar(255)
+  hsc_code          String?            @db.VarChar(50)
+  content_technical String?            @db.Text
+  categoryId        Int
+  category          Category           @relation(fields: [categoryId], references: [category_id])
+  ProductPackaging  ProductPackaging[]
+  ProductImage      ProductImage[]
 }
-  // category  Category @relation(fields: [category_id], references: [category_id])
+
+model ProductPackaging {
+  id            Int          @id @default(autoincrement())
+  product       Product      @relation(fields: [productId], references: [product_id])
+  productId     Int
+  quantity      Int
+  packagingType PackingUnit?
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [product_id])
+  url       String   @db.VarChar(500)
+  altText   String?  @db.VarChar(255)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

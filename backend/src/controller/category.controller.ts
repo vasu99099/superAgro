@@ -1,38 +1,31 @@
-import { NextFunction, Request, Response } from "express";
-import CategoryService, { Category } from "../services/CategoryService";
-import STATUS_CODES from "../constants/statusCode";
-import sendResponse from "../utils/sendResponse";
-import fileValidationSchema from "../validationSchema/user.validation";
-import { validateInput } from "../validationSchema";
-import ERROR_MESSAGES from "../constants/errorMessages";
-import { AuthRequest } from "../middleware/adminAuth";
-import AppError from "../utils/AppError";
-import { CategorySchema } from "../validationSchema/category.validation";
+import { NextFunction, Request, Response } from 'express';
+import CategoryService, { Category } from '../services/CategoryService';
+import STATUS_CODES from '../constants/statusCode';
+import sendResponse from '../utils/sendResponse';
+import fileValidationSchema from '../validationSchema/user.validation';
+import { validateInput } from '../validationSchema';
+import ERROR_MESSAGES from '../constants/errorMessages';
+import { AuthRequest } from '../middleware/adminAuth';
+import AppError from '../utils/AppError';
+import { CategorySchema } from '../validationSchema/category.validation';
 
-const getAllCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
+const getAllCategory = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const categotySevice = new CategoryService();
-    const {totalRecords, data} = await categotySevice.getAllCategory(req.query);
-    return sendResponse(
-      res,
-      true,
-      STATUS_CODES.SUCCESS,
-      "All Data fetched Successfully",
-      {totalRecords, categories:data}
-    );
+    if (req.query.search) {
+      req.query.search = { name: req.query.search };
+    }
+    const { totalRecords, data } = await categotySevice.getAllCategory(req.query);
+    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'All Data fetched Successfully', {
+      totalRecords,
+      categories: data
+    });
   } catch (e) {
     next(e);
   }
 };
-const AddCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
+
+const AddCategory = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const isValid = validateInput(CategorySchema, req.body, res);
     if (!isValid) {
@@ -44,7 +37,7 @@ const AddCategory = async (
       res,
       true,
       STATUS_CODES.SUCCESS,
-      "Category Added Successfully",
+      'Category Added Successfully',
       newCategory
     );
   } catch (e) {
@@ -52,21 +45,20 @@ const AddCategory = async (
   }
 };
 
-const deleteCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
+const deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
+    if (!req.body.category_id) {
+      sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'Invalid Request');
+    }
+
     const categotySevice = new CategoryService();
-    const deletedCategory = await categotySevice.deleteCategory(
-      req.body.category_id
-    );
+    const deletedCategory = await categotySevice.deleteCategory(req.body.category_id);
+
     return sendResponse(
       res,
       true,
       STATUS_CODES.SUCCESS,
-      "Category deleted Successfully",
+      'Category deleted Successfully',
       deletedCategory
     );
   } catch (e) {
@@ -74,26 +66,21 @@ const deleteCategory = async (
   }
 };
 
-const updateCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
+const updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const isValid = validateInput(CategorySchema, req.body, res);
+    const isValid = validateInput(CategorySchema, req.body, res, { isEdit: true });
+
     if (!isValid) {
       return;
     }
     const categotySevice = new CategoryService();
-    const updatedCategory = await categotySevice.updateCategory(
-      req.body.category_id,
-      req.body
-    );
+    const updatedCategory = await categotySevice.updateCategory(req.body.category_id, req.body);
+
     return sendResponse(
       res,
       true,
       STATUS_CODES.SUCCESS,
-      "Category Updated Successfully",
+      'Category Updated Successfully',
       updatedCategory
     );
   } catch (e) {
@@ -104,7 +91,7 @@ const categoryController = {
   getAllCategory,
   AddCategory,
   deleteCategory,
-  updateCategory,
+  updateCategory
 };
 
 export default categoryController;

@@ -3,8 +3,13 @@ import sendResponse from '../utils/sendResponse';
 import { Response } from 'express';
 import STATUS_CODES from '../constants/statusCode';
 
-export const validateInput = (schema: Joi.ObjectSchema, data: object, res: Response) => {
-  const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true });
+export const validateInput = (
+  schema: Joi.ObjectSchema,
+  data: object,
+  res: Response,
+  context?: Record<string, any> | undefined
+) => {
+  const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true, context });
 
   if (!error) {
     return true;

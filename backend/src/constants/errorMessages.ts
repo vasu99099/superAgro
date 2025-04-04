@@ -18,8 +18,22 @@ const ERROR_MESSAGES = {
     POST_CREATE_SUCCESS: 'Post created successfully',
     POST_DELETED_SUCCESS: 'Post deleted successfully',
     POST_UPDATED_SUCCSS: 'Post updated successfully',
-    POST_ALREADY_EXISTS: "This Record Allready Exists"
+    POST_ALREADY_EXISTS: 'This Record Already Exists'
   },
+  CUSTOMER: {
+    CUSTOMER_NO_FOUND: 'Customer Not Found',
+    POST_CREATE_SUCCESS: 'Post created successfully',
+    POST_DELETED_SUCCESS: 'Post deleted successfully',
+    POST_UPDATED_SUCCSS: 'Post updated successfully',
+    CUSTOMER_ALREADY_EXISTS: 'Customer is already exists'
+  },
+  PRODUCT: {
+    PRODUCT_NO_FOUND: 'Product Not Found',
+    POST_CREATE_SUCCESS: 'Post created successfully',
+    POST_DELETED_SUCCESS: 'Post deleted successfully',
+    POST_UPDATED_SUCCSS: 'Post updated successfully',
+    PRODUCT_ALREADY_EXISTS: 'Product is already exists'
+  }
 };
 
 export default ERROR_MESSAGES;
