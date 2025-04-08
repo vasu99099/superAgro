@@ -3,7 +3,6 @@ import errorHandler from '../middleware/errorHandler';
 import indexRoutes from '../routes';
 import config from './config';
 import cors, { CorsOptions } from 'cors';
-import { cacheData, getCachedData } from './rediesInit';
 
 const expressInit = async (server: Express) => {
   try {

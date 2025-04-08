@@ -91,7 +91,7 @@ const categoryController = {
   getAllCategory,
   AddCategory,
   deleteCategory,
-  updateCategory
+  updateCategory,
 };
 
 export default categoryController;

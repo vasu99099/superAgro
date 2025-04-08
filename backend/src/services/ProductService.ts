@@ -32,10 +32,8 @@ class ProductService {
           skip,
           take,
           include: {
-            user: true,
             category: true,
             ProductImage: true,
-            ProductPackaging: true
           }
         }),
         prisma.product.count({ where })
@@ -55,10 +53,8 @@ class ProductService {
       const product = await prisma.product.findUnique({
         where: { product_id },
         include: {
-          user: true,
           category: true,
           ProductImage: true,
-          ProductPackaging: true
         }
       });
 

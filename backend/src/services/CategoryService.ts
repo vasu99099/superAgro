@@ -13,13 +13,21 @@ export interface Category {
 class CategoryService {
   async getAllCategory(query: any) {
     try {
-      const { skip, take, orderBy, where } = paginateAndSort(query);
-
-      const [allCategories, totalRecords] = await prisma.$transaction([
-        prisma.category.findMany({ where, orderBy, skip, take }),
-        prisma.category.count({ where })
-      ]);
-
+       const { skip, take, orderBy, where } = paginateAndSort(query);
+       let allCategories, totalRecords;
+        if (!query.page) {
+          // No pagination – return all records
+          [allCategories, totalRecords] = await prisma.$transaction([
+            prisma.category.findMany({ where, orderBy }),
+            prisma.category.count({ where }),
+          ]);
+        } else {
+          // Pagination applied
+          [allCategories, totalRecords] = await prisma.$transaction([
+            prisma.category.findMany({ where, orderBy, skip, take }),
+            prisma.category.count({ where }),
+          ]);
+        }
       return {
         totalRecords,
         data: allCategories
@@ -28,6 +36,7 @@ class CategoryService {
       throw prismaErrorHandler(error);
     }
   }
+  
 
   async addCategory(category: Category) {
     try {

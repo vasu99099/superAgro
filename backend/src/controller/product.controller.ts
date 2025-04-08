@@ -25,42 +25,71 @@ export const productController = {
     } catch (e) {
       next(e);
     }
-  }
+  },
 
-  //   getById: async (req: Request, res: Response) => {
-  //     try {
-  //       const product = await ProductService.getProductById(Number(req.params.id));
-  //       if (!product) return res.status(404).json({ message: 'Product not found' });
-  //       res.json(product);
-  //     } catch (error) {
-  //       res.status(500).json({ message: 'Error fetching product' });
-  //     }
-  //   },
+    getById: async (req: Request, res: Response): Promise<any>  => {
+      try {
+        const productSevice = new ProductService();
+        console.log(req.params.id);
+        const product = await productSevice.getProductById(Number(req.query.id));
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        return sendResponse(
+          res,
+          true,
+          STATUS_CODES.SUCCESS,
+          'Product get byId Successfully',
+          product
+        );
+      } catch (error) {
+        res.status(500).json({ message: 'Error fetching product' });
+      }
+    },
 
-  //   getAll: async (_req: Request, res: Response) => {
-  //     try {
-  //       const products = await ProductService.getAllProducts();
-  //       res.json(products);
-  //     } catch (error) {
-  //       res.status(500).json({ message: 'Error fetching products' });
-  //     }
-  //   },
+  getAllCustomer: async (req: Request, res: Response, next: NextFunction) : Promise<any> => {
+      try {
+        const productSevice = new ProductService();
+        const products = await productSevice.getAllProducts(req.query);
+        return sendResponse(
+          res,
+          true,
+          STATUS_CODES.SUCCESS,
+          'All Product fetched Successfully',
+          products
+        );
+      } catch (error) {
+        res.status(500).json({ message: 'Error fetching products' });
+      }
+    },
 
-  //   update: async (req: Request, res: Response) => {
-  //     try {
-  //       const updated = await ProductService.updateProduct(Number(req.params.id), req.body);
-  //       res.json(updated);
-  //     } catch (error) {
-  //       res.status(500).json({ message: 'Failed to update product' });
-  //     }
-  //   },
+    updateCustomer: async (req: Request, res: Response): Promise<any> => {
+      try {
+        const productSevice = new ProductService();
+        const updated = await productSevice.updateProduct(Number(req.params.id), req.body);
+        return sendResponse(
+          res,
+          true,
+          STATUS_CODES.SUCCESS,
+          'Product Updated Successfully',
+          updated
+        );
+      } catch (error) {
+        res.status(500).json({ message: 'Failed to update product' });
+      }
+    },
 
-  //   delete: async (req: Request, res: Response) => {
-  //     try {
-  //       await ProductService.deleteProduct(Number(req.params.id));
-  //       res.status(204).send();
-  //     } catch (error) {
-  //       res.status(500).json({ message: 'Failed to delete product' });
-  //     }
-  //   }
+    deleteCustomer: async (req: Request, res: Response): Promise<any> => {
+      try {
+        const productSevice = new ProductService();
+        const deleted = await productSevice.deleteProduct(Number(req.params.id));
+        return sendResponse(
+          res,
+          true,
+          STATUS_CODES.SUCCESS,
+          'Product Deleted Successfully',
+          deleted
+        );
+      } catch (error) {
+        res.status(500).json({ message: 'Failed to delete product' });
+      }
+    }
 };

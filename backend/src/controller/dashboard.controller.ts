@@ -11,14 +11,15 @@ interface DashboardType {
 
 const getDashboardData = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const dataFromRedies = await getCachedData<DashboardType>('dashboard');
+    // const dataFromRedies = await getCachedData<DashboardType>('dashboard');
+    const dataFromRedies =false;
     let DashboardData: DashboardType = { totalCustomers: 0, monthNewCustomers: 0 };
     if (!dataFromRedies) {
       const customerService = new CustomerService();
       const { monthNewCustomers, totalCustomers } = await customerService.getCustomerCount();
       DashboardData.monthNewCustomers = monthNewCustomers;
       DashboardData.totalCustomers = totalCustomers;
-      cacheData('dashboard', DashboardData);
+      // cacheData('dashboard', DashboardData);
     } else {
       DashboardData = dataFromRedies;
     }
