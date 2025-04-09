@@ -3,14 +3,29 @@ import prisma from '../lib/prismaInit';
 
 class TmpImageService {
   // ✅ Upload Image (Track PENDING Status)
-  async uploadImage(user_id: number | null, imageKey: string) {
-    return await prisma.tempImage.create({
-      data: {
-        user_id,
-        image_key: imageKey,
-        status: ImageStatus.PENDING
-      }
-    });
+  async uploadImage(user_id: number | null, imageKey: string | string[]) {
+    if (Array.isArray(imageKey)) {
+      const images = await Promise.all(
+        imageKey.map((key) =>
+          prisma.tempImage.create({
+            data: {
+              user_id,
+              image_key: key,
+              status: ImageStatus.PENDING,
+            },
+          })
+        )
+      );
+      return images; // returns array of created records
+    } else {
+      return await prisma.tempImage.create({
+        data: {
+          user_id,
+          image_key: imageKey,
+          status: ImageStatus.PENDING
+        }
+      });
+    }
   }
 
   // ✅ Confirm Image (When Profile is Updated)

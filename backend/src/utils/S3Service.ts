@@ -41,7 +41,7 @@ export const uploadFileToS3 = async (
 };
 // // Generate a Pre-Signed Upload URL
 
-export const getUploadSignedUrl = async (fileType: string, file_size: number = MAX_FILE_SIZE) => {
+export const getUploadSignedUrl = async (fileType: string, file_size: number = MAX_FILE_SIZE, basepath: string) => {
   try {
     const fileKey = `${uuidv4()}.${fileType.split('/')[1]}`;
 
@@ -56,7 +56,8 @@ export const getUploadSignedUrl = async (fileType: string, file_size: number = M
 
     return {
       uploadUrl,
-      fileUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+      fileUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`,
+      fileKey: fileKey
     };
   } catch (error) {
     console.error('Error generating signed URL:', error);

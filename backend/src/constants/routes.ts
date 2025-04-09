@@ -46,6 +46,7 @@ export const ROUTES = {
     GET_PRODUCT_BY_ID: '/getProductById',
     DELETE_PRODUCT: '/deleteProduct',
     UPDATE_PRODUCT: '/updateProduct',
-    ADD_PRODUCT: '/addProduct'
+    ADD_PRODUCT: '/addProduct',
+    PRODUCT_IMAGES: '/getProductPresign'
   }
 };

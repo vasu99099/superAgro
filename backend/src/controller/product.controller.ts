@@ -5,7 +5,13 @@ import { validateInput } from '../validationSchema';
 import { productValidationSchema } from '../validationSchema/product.validation';
 import ProductService, { ProductInputType } from '../services/ProductService';
 import sendResponse from '../utils/sendResponse';
-
+import { getUploadSignedUrl  } from "../utils/S3Service";
+import TmpImageService from "../services/TmpImageService";
+import { AuthRequest } from '../middleware/adminAuth';
+interface productImage {
+  fileType: string,
+  size: number
+}
 export const productController = {
   create: async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
@@ -90,6 +96,36 @@ export const productController = {
         );
       } catch (error) {
         res.status(500).json({ message: 'Failed to delete product' });
+      }
+    },
+
+    productPresigned: async (req: AuthRequest, res: Response): Promise<any> => {
+      try {
+        const imagesData = req.body.images;
+        const product = 'Product';
+        const userId = req.user?.id;
+        const presignedUrls = await Promise.all(
+        imagesData.map(async (productImage: productImage) => {
+          const { uploadUrl, fileKey } = await getUploadSignedUrl(
+            productImage.fileType,
+            productImage.size,
+            product
+          );
+          
+          return { uploadUrl, fileKey };
+        })
+      );
+      const fileKeys = presignedUrls.map(item => item.fileKey);
+      const image = TmpImageService.uploadImage(userId, fileKeys);
+      return sendResponse(
+        res,
+        true,
+        STATUS_CODES.SUCCESS,
+        'Product Images Added Successfully',
+        presignedUrls
+      );
+      } catch(error) {
+        res.status(500).json({ message: 'Error fetching products images' });
       }
     }
 };

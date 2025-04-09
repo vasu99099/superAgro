@@ -9,5 +9,6 @@ productRoutes.get(ROUTES.PRODUCT.GET_PRODUCT_BY_ID, productController.getById);
 productRoutes.post(ROUTES.PRODUCT.ADD_PRODUCT, productController.create);
 productRoutes.put(ROUTES.PRODUCT.UPDATE_PRODUCT, productController.updateCustomer);
 productRoutes.delete(ROUTES.PRODUCT.DELETE_PRODUCT, productController.deleteCustomer);
+productRoutes.post(ROUTES.PRODUCT.PRODUCT_IMAGES, productController.productPresigned)
 
 export default productRoutes;
