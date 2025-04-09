@@ -41,9 +41,13 @@ export const uploadFileToS3 = async (
 };
 // // Generate a Pre-Signed Upload URL
 
-export const getUploadSignedUrl = async (fileType: string, file_size: number = MAX_FILE_SIZE, basepath: string) => {
+export const getUploadSignedUrl = async (
+  fileType: string,
+  file_size: number = MAX_FILE_SIZE,
+  basepath: string
+) => {
   try {
-    const fileKey = `${uuidv4()}.${fileType.split('/')[1]}`;
+    const fileKey = `${basepath}/${uuidv4()}.${fileType.split('/')[1]}`;
 
     const command = new PutObjectCommand({
       Bucket: config.AWS_BUCKET_NAME,

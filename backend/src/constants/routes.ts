@@ -43,7 +43,6 @@ export const ROUTES = {
   PRODUCT: {
     BASE: '/product',
     GET_PRODUCT: '/getProduct',
-    GET_PRODUCT_BY_ID: '/getProductById',
     DELETE_PRODUCT: '/deleteProduct',
     UPDATE_PRODUCT: '/updateProduct',
     ADD_PRODUCT: '/addProduct',

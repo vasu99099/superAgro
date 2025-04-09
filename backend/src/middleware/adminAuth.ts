@@ -16,7 +16,7 @@ const adminAuthUser = async (req: AuthRequest, res: Response, next: NextFunction
     // Verify Token
     // const decoded = jwt.verify(token, SECRET_KEY);
     // req.user = decoded; // Attach user data to the request
-    req.user = { id: 4 };
+    req.user = { id: 1 };
 
     next();
   } catch (error) {

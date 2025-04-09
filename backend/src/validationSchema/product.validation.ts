@@ -1,7 +1,6 @@
 import Joi from 'joi';
 
 export const productValidationSchema = Joi.object({
-  userId: Joi.number().integer().required(),
   name: Joi.string().max(255).required(),
   hsc_code: Joi.string().max(50).optional().allow(null, ''),
   content_technical: Joi.string().optional().allow(null, ''),
