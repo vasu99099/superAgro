@@ -1,0 +1,35 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const routes_1 = require("../constants/routes");
+const AppError_1 = __importDefault(require("../utils/AppError"));
+const statusCode_1 = __importDefault(require("../constants/statusCode"));
+const errorMessages_1 = __importDefault(require("../constants/errorMessages"));
+const adminAuth_1 = __importDefault(require("../middleware/adminAuth"));
+const userRoutes_1 = __importDefault(require("./userRoutes"));
+const authRoutes_1 = __importDefault(require("./authRoutes"));
+const categoryRoutes_1 = __importDefault(require("./categoryRoutes"));
+const customerRoutes_1 = __importDefault(require("./customerRoutes"));
+const villageRoutes_1 = __importDefault(require("./villageRoutes"));
+const farmRoutes_1 = __importDefault(require("./farmRoutes"));
+const dashboardRoutes_1 = __importDefault(require("./dashboardRoutes"));
+const productRoutes_1 = __importDefault(require("./productRoutes"));
+const dosageRoutes_1 = __importDefault(require("./dosageRoutes"));
+const indexRoutes = (0, express_1.Router)();
+indexRoutes.use(routes_1.ROUTES.AUTH.BASE, authRoutes_1.default);
+indexRoutes.use(adminAuth_1.default);
+indexRoutes.use(routes_1.ROUTES.USER.BASE, userRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.DASHBOARD.BASE, dashboardRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.CATEGORY.BASE, categoryRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.CUSTOMER.BASE, customerRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.FARM.BASE, farmRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.VILLAGE.BASE, villageRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.PRODUCT.BASE, productRoutes_1.default);
+indexRoutes.use(routes_1.ROUTES.DOSAGE.BASE, dosageRoutes_1.default);
+indexRoutes.use('*', (req, res) => {
+    throw new AppError_1.default(errorMessages_1.default.NOT_FOUND, statusCode_1.default.NOT_FOUND);
+});
+exports.default = indexRoutes;

@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const routes_1 = require("../constants/routes");
+const dosage_controller_1 = require("../controller/dosage.controller");
+const dosageRoutes = (0, express_1.Router)();
+dosageRoutes.get(routes_1.ROUTES.DOSAGE.GET_FARM_DOSAGE, dosage_controller_1.dosageController.getDosage);
+dosageRoutes.get(routes_1.ROUTES.DOSAGE.GET_DOSAGE_BY_ID, dosage_controller_1.dosageController.getDosageBYId);
+dosageRoutes.post(routes_1.ROUTES.DOSAGE.ADD_DOSAGE, dosage_controller_1.dosageController.create);
+dosageRoutes.put(routes_1.ROUTES.DOSAGE.MARK_DASOAGE_AS_PURCHASED, dosage_controller_1.dosageController.markDosageAsPurchased);
+dosageRoutes.put(routes_1.ROUTES.DOSAGE.UPDATE_DOSAGE, dosage_controller_1.dosageController.updateDosage);
+dosageRoutes.delete(routes_1.ROUTES.DOSAGE.DELETE_DOSAGE, dosage_controller_1.dosageController.deleteDosage);
+exports.default = dosageRoutes;
