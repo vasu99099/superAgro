@@ -5,23 +5,35 @@ import sendResponse from '../utils/sendResponse';
 import { validateInput } from '../validationSchema';
 import AppError from '../utils/AppError';
 import { FarmSchema } from '../validationSchema/farm.validation';
+import ERROR_MESSAGES from '../constants/errorMessages';
 
 const getAllFarms = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const farmService = new FarmService();
 
-    // Construct search query
     const searchQuery = req.query.search ? { farm_name: String(req.query.search) } : undefined;
 
     if (req.query.farm_id) {
       const id = parseInt(req.query.farm_id as string, 10);
 
       if (isNaN(id)) {
-        return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'Invalid farm ID', null);
+        return sendResponse(
+          res,
+          false,
+          STATUS_CODES.BAD_REQUEST,
+          ERROR_MESSAGES.INVALID('Farm Id'),
+          null
+        );
       }
 
       const farm = await farmService.getFarmById(id);
-      return sendResponse(res, true, STATUS_CODES.SUCCESS, 'Farm fetched successfully', farm);
+      return sendResponse(
+        res,
+        true,
+        STATUS_CODES.SUCCESS,
+        ERROR_MESSAGES.FETCHED_SUCCESS('Farm'),
+        farm
+      );
     }
 
     const { totalRecords, data } = await farmService.getAllFarms({
@@ -29,7 +41,7 @@ const getAllFarms = async (req: Request, res: Response, next: NextFunction): Pro
       search: searchQuery
     });
 
-    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'All farms fetched successfully', {
+    return sendResponse(res, true, STATUS_CODES.SUCCESS, ERROR_MESSAGES.FETCHED_SUCCESS('Farm'), {
       totalRecords,
       farms: data
     });
@@ -48,7 +60,13 @@ const addFarm = async (req: Request, res: Response, next: NextFunction): Promise
     const farmService = new FarmService();
     const newFarm = await farmService.addFarm(req.body as FarmType);
 
-    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'Farm added successfully', newFarm);
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.SUCCESS,
+      ERROR_MESSAGES.CREATED_SUCCESS('Farm'),
+      newFarm
+    );
   } catch (e) {
     next(e);
   }
@@ -57,13 +75,19 @@ const addFarm = async (req: Request, res: Response, next: NextFunction): Promise
 const deleteFarm = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     if (!req.body.farm_id) {
-      return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'Invalid Request');
+      return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, ERROR_MESSAGES.ID_REQUIRED('Farm'));
     }
 
     const farmService = new FarmService();
     const deletedFarm = await farmService.deleteFarm(req.body.farm_id);
 
-    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'Farm deleted successfully', deletedFarm);
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.SUCCESS,
+      ERROR_MESSAGES.DELETE_SUCCESS('Farm'),
+      deletedFarm
+    );
   } catch (e) {
     next(e);
   }
@@ -80,7 +104,13 @@ const updateFarm = async (req: Request, res: Response, next: NextFunction): Prom
     const farmService = new FarmService();
     const updatedFarm = await farmService.updateFarm(req.body.farm_id, req.body);
 
-    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'Farm updated successfully', updatedFarm);
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.SUCCESS,
+      ERROR_MESSAGES.UPDATE_SUCCESS('Farm'),
+      updatedFarm
+    );
   } catch (e) {
     next(e);
   }

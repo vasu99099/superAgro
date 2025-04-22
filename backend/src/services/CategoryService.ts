@@ -11,23 +11,28 @@ export interface Category {
 }
 
 class CategoryService {
+  userId: number;
+
+  constructor(userId: number) {
+    this.userId = userId;
+  }
   async getAllCategory(query: any) {
     try {
-       const { skip, take, orderBy, where } = paginateAndSort(query);
-       let allCategories, totalRecords;
-        if (!query.page) {
-          // No pagination – return all records
-          [allCategories, totalRecords] = await prisma.$transaction([
-            prisma.category.findMany({ where, orderBy }),
-            prisma.category.count({ where }),
-          ]);
-        } else {
-          // Pagination applied
-          [allCategories, totalRecords] = await prisma.$transaction([
-            prisma.category.findMany({ where, orderBy, skip, take }),
-            prisma.category.count({ where }),
-          ]);
-        }
+      const { skip, take, orderBy, where } = paginateAndSort(query, this.userId);
+      let allCategories, totalRecords;
+      if (!query.page) {
+        // No pagination – return all records
+        [allCategories, totalRecords] = await prisma.$transaction([
+          prisma.category.findMany({ where, orderBy }),
+          prisma.category.count({ where })
+        ]);
+      } else {
+        // Pagination applied
+        [allCategories, totalRecords] = await prisma.$transaction([
+          prisma.category.findMany({ where, orderBy, skip, take }),
+          prisma.category.count({ where })
+        ]);
+      }
       return {
         totalRecords,
         data: allCategories
@@ -36,14 +41,13 @@ class CategoryService {
       throw prismaErrorHandler(error);
     }
   }
-  
 
   async addCategory(category: Category) {
     try {
       const { name, description } = category;
 
       const existingCategory = await prisma.category.findUnique({
-        where: { name }
+        where: { name, user_id: this.userId }
       });
 
       if (existingCategory) {
@@ -53,7 +57,8 @@ class CategoryService {
       const newCategory = await prisma.category.create({
         data: {
           name,
-          description
+          description,
+          user_id: this.userId
         }
       });
       return newCategory;
@@ -64,7 +69,7 @@ class CategoryService {
   async deleteCategory(category_id: number) {
     try {
       const deletedCategory = await prisma.category.delete({
-        where: { category_id }
+        where: { category_id, user_id: this.userId }
       });
       return deletedCategory;
     } catch (error) {
@@ -74,7 +79,7 @@ class CategoryService {
   async updateCategory(category_id: number, data: Category) {
     try {
       const updatedCategory = await prisma.category.update({
-        where: { category_id },
+        where: { category_id, user_id: this.userId },
         data: data
       });
       return updatedCategory;

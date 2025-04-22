@@ -5,7 +5,6 @@ import sendResponse from '../utils/sendResponse';
 import fileValidationSchema from '../validationSchema/user.validation';
 import { validateInput } from '../validationSchema';
 import ERROR_MESSAGES from '../constants/errorMessages';
-import { AuthRequest } from '../middleware/adminAuth';
 import AppError from '../utils/AppError';
 import { CategorySchema } from '../validationSchema/category.validation';
 import { CustomerSchema } from '../validationSchema/customer.validation';

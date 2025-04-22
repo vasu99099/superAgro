@@ -4,6 +4,14 @@ const ERROR_MESSAGES = {
   INTERNAL_ERROR: 'Internal Server Error.',
   SOMETHING_WRONG: 'Something went wrong',
   DATABASE_ERROR: 'Database error',
+  UNAUTHENTIC_USER: 'Unauthentic user',
+  RECORD_NOT_FOUND: 'Record not found',
+  FETCHED_SUCCESS: (title: string) => `${title} fetched succesfully`,
+  ID_REQUIRED: (title: string) => `${title} ID is required`,
+  UPDATE_SUCCESS: (title: string) => `${title} Updated successfully`,
+  DELETE_SUCCESS: (title: string) => `${title} deleted successfully`,
+  CREATED_SUCCESS: (title: string) => `${title} added successfully`,
+  INVALID: (title: string) => `${title} is invalid`,
   AUTH: {
     NO_ACCOUND_FOUND: 'No account found with this email',
     ALREADY_REGISTERED: 'User already exists',
@@ -12,6 +20,15 @@ const ERROR_MESSAGES = {
     LOGOUT_SUCCESS: 'Logged out successfully',
     REGISTER_SUCCESS: 'User registered successfully',
     USER_NOT_FOUND: 'User not exist'
+  },
+  USER: {
+    NO_FILE_FOUND: 'No file found',
+    PROFILE_PIC_UPLOAD_SUCCESS: 'Profile picture uploaded successfully',
+    PROFILE_UPDATED_SUCCESS: 'Profile has been updated successfully'
+  },
+  CATEGORY: {
+    CREATED_SUCCESS: 'Category added successfully',
+    DELETED_SUCCESS: 'Category deleted successfully'
   },
   POST: {
     POST_NO_FOUND: 'Post Not Found',

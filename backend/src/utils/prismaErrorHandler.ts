@@ -3,6 +3,7 @@ import AppError from './AppError';
 import STATUS_CODES from '../constants/statusCode';
 
 const prismaErrorHandler = (error: any) => {
+  console.log('error', error);
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':

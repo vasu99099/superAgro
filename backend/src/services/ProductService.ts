@@ -130,7 +130,6 @@ class ProductService {
       TmpImageService.confirmImage(images?.map((i) => i.url) ?? []);
       return newProduct;
     } catch (error) {
-      console.log('first', error);
       throw prismaErrorHandler(error);
     }
   }

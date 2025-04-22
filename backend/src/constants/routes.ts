@@ -3,8 +3,7 @@ export const ROUTES = {
   AUTH: {
     BASE: '/auth',
     LOGIN: '/login',
-    REGISTER: '/register',
-    GETUSER: '/getuser'
+    REGISTER: '/register'
   },
   DASHBOARD: {
     BASE: '/dashboard'
@@ -24,6 +23,7 @@ export const ROUTES = {
   },
   CUSTOMER: {
     BASE: '/customer',
+
     GETALLCUSTOMER: '/getAllCustomer',
     ADD_CUSTOMER: '/addCustomer',
     DELETECUSTOMER: '/deleteCustomer',
@@ -46,6 +46,18 @@ export const ROUTES = {
     DELETE_PRODUCT: '/deleteProduct',
     UPDATE_PRODUCT: '/updateProduct',
     ADD_PRODUCT: '/addProduct',
+    PRODUCT_IMAGES: '/getProductPresign'
+  },
+  DOSAGE: {
+    BASE: '/dosage',
+    GET_FARM_DOSAGE: '/:farm_id',
+    GET_DOSAGE_BY_ID: '/dosageById/:dosage_id',
+    UPDATE_DOSAGE: '/updateDosage',
+    MARK_DASOAGE_AS_PURCHASED: '/markAsPurchased/:dosage_id',
+    GET_PRODUCT: '/getProduct',
+    DELETE_DOSAGE: '/deleteDosage',
+    UPDATE_PRODUCT: '/updateProduct',
+    ADD_DOSAGE: '/addDosage',
     PRODUCT_IMAGES: '/getProductPresign'
   }
 };

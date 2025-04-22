@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
-  url               = "mysql://vasu_bhimani:deep70@radixusers2.com:3306/vasu_bhimani"
-  shadowDatabaseUrl = "mysql://vasu_bhimani:deep70@radixusers2.com:3306/vasu_bhimani1"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("DATABASE_URL_SHADOW")  
 }
 
 enum ImageStatus {
@@ -23,19 +23,21 @@ enum PackingUnit {
 }
 
 model User {
-  user_id        Int       @id @default(autoincrement())
-  username       String    @unique
+  user_id        Int        @id @default(autoincrement())
+  username       String     @unique
   password       String
   firstname      String
   lastname       String
-  email          String    @unique
+  email          String     @unique
   profile_image  String?
   contact_number String
-  role           Role      @relation(fields: [role_id], references: [role_id])
+  role           Role       @relation(fields: [role_id], references: [role_id])
   role_id        Int
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
   Product        Product[]
+  Category       Category[]
+  Customer       Customer[]
 }
 
 model Role {
@@ -56,7 +58,11 @@ model Category {
   category_id Int       @id @default(autoincrement())
   name        String    @unique
   description String?
+  user_id     Int
+  user        User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   category    Product[]
+
+  @@unique([name, user_id])
 }
 
 model City {
@@ -87,14 +93,19 @@ model Customer {
   customer_id     Int      @id @default(autoincrement())
   name            String   @db.VarChar(255)
   address         String?  @db.Text
+  user_id         Int
+  user            User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   village_id      Int
   village         Village  @relation(fields: [village_id], references: [id])
   phone           String   @unique @db.VarChar(20)
   whatsapp_number String?  @db.VarChar(20)
-  email           String?  @unique @db.VarChar(255)
+  email           String?  @db.VarChar(255)
   farms           farms[]
   created_at      DateTime @default(now()) @map("created_at")
   updated_at      DateTime @updatedAt @map("updated_at")
+  Dosage          Dosage[]
+
+  @@unique([user_id, phone])
 }
 
 model farms {
@@ -103,24 +114,26 @@ model farms {
   customer_id Int
   customer    Customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade)
   village_id  Int
-  village     Village  @relation(fields: [village_id], references: [id], onDelete: Cascade)
+  village     Village  @relation(fields: [village_id], references: [id])
   longitude   Decimal? @db.Decimal(10, 7)
   latitude    Decimal? @db.Decimal(10, 7)
   created_at  DateTime @default(now()) @map("created_at")
   updated_at  DateTime @updatedAt @map("updated_at")
+  Dosage      Dosage[]
 }
 
 model Product {
-  product_id        Int                @id @default(autoincrement())
-  userId            Int
-  user              User               @relation(fields: [userId], references: [user_id])
-  name              String             @db.VarChar(255)
-  hsc_code          String?            @db.VarChar(50)
-  content_technical String?            @db.Text
-  categoryId        Int
-  category          Category           @relation(fields: [categoryId], references: [category_id])
-  ProductPackaging  ProductPackaging[]
-  ProductImage      ProductImage[]
+  product_id         Int                  @id @default(autoincrement())
+  userId             Int
+  user               User                 @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  name               String               @db.VarChar(255)
+  hsc_code           String?              @db.VarChar(50)
+  content_technical  String?              @db.Text
+  categoryId         Int
+  category           Category             @relation(fields: [categoryId], references: [category_id])
+  ProductPackaging   ProductPackaging[]
+  ProductImage       ProductImage[]
+  SuggestedPesticide SuggestedPesticide[]
 }
 
 model ProductPackaging {
@@ -139,4 +152,25 @@ model ProductImage {
   altText   String?  @db.VarChar(255)
   isPrimary Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Dosage {
+  dosage_id   Int                  @id @default(autoincrement())
+  farm_id     Int
+  customer_id Int
+  isClosed    Boolean              @default(false)
+  created_at  DateTime             @default(now())
+  updated_at  DateTime             @updatedAt
+  farm        farms                @relation(fields: [farm_id], references: [farm_id], onDelete: Cascade)
+  Customer    Customer             @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade)
+  suggestions SuggestedPesticide[]
+}
+
+model SuggestedPesticide {
+  suggested_id Int     @id @default(autoincrement())
+  product_id   Int
+  note         String?
+  dosage_id    Int
+  dosage       Dosage  @relation(fields: [dosage_id], references: [dosage_id], onDelete: Cascade)
+  product      Product @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
 }

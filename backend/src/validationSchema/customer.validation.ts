@@ -1,9 +1,12 @@
 import Joi from 'joi';
 
 export const CustomerSchema = Joi.object({
-  customer_id: Joi.number().when('$isEdit', { is: true, then: Joi.required() }).messages({
-    'any.required': 'Customer ID is required for editing'
-  }),
+  customer_id: Joi.number()
+    .strict()
+    .when('$isEdit', { is: true, then: Joi.required(), otherwise: Joi.forbidden() })
+    .messages({
+      'any.required': 'Customer ID is required for editing'
+    }),
   name: Joi.string().max(255).required().messages({
     'string.base': 'Name must be a string',
     'string.max': 'Name must not exceed 255 characters',
@@ -12,8 +15,8 @@ export const CustomerSchema = Joi.object({
   address: Joi.string().allow('').max(1000).optional().messages({
     'string.max': 'Address must not exceed 1000 characters'
   }),
-  village_id: Joi.number().integer().required().messages({
-    'number.base': 'Invalid Village',
+  village_id: Joi.number().integer().strict().required().messages({
+    'number.base': 'Invalid Village ID',
     'any.required': 'Village is required'
   }),
   longitude: Joi.number().precision(7).allow(null).optional().messages({

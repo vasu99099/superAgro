@@ -1,9 +1,12 @@
 import Joi from 'joi';
 
 export const FarmSchema = Joi.object({
-  farm_id: Joi.number().when('$isEdit', { is: true, then: Joi.required() }).messages({
-    'any.required': 'Farm ID is required for update'
-  }),
+  farm_id: Joi.number()
+    .strict()
+    .when('$isEdit', { is: true, then: Joi.required(), otherwise: Joi.forbidden() })
+    .messages({
+      'any.required': 'Farm ID is required for update'
+    }),
   farm_name: Joi.string().min(2).max(255).required().messages({
     'string.base': 'Farm name must be a string',
     'string.max': 'Farm name must not exceed 255 characters',

@@ -6,7 +6,7 @@ export interface PaginationParams {
   search?: Record<string, string>;
 }
 
-export const paginateAndSort = (query: PaginationParams) => {
+export const paginateAndSort = (query: PaginationParams, userId?: number) => {
   let { page = 1, order = 'desc', order_by = '', page_size = 10, search = {} } = query;
 
   // Convert values to proper types
@@ -17,11 +17,16 @@ export const paginateAndSort = (query: PaginationParams) => {
     : 'desc';
 
   let orderBy = order_by ? buildOrderBy(order_by, order) : undefined;
-
+  console.log('search', search);
+  const whereConditions: any[] = Object.entries(search).map(([key, value]) =>
+    buildWhereCondition(key, value)
+  );
+  if (userId) {
+    whereConditions.push({ user_id: userId });
+  }
   const where = {
-    AND: Object.entries(search).map(([key, value]) => buildWhereCondition(key, value))
+    AND: whereConditions
   };
-
   return { skip, take, orderBy, where };
 };
 

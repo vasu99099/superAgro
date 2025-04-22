@@ -2,7 +2,8 @@ import Joi from 'joi';
 
 export const CategorySchema = Joi.object({
   category_id: Joi.number()
-    .when('$isEdit', { is: true, then: Joi.required() }) // Required only when editing
+    .strict()
+    .when('$isEdit', { is: true, then: Joi.number().required() }) // Required only when editing
     .messages({
       'any.required': 'Category ID is required for editing'
     }),

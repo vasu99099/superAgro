@@ -5,7 +5,6 @@ import sendResponse from '../utils/sendResponse';
 import fileValidationSchema from '../validationSchema/user.validation';
 import { validateInput } from '../validationSchema';
 import ERROR_MESSAGES from '../constants/errorMessages';
-import { AuthRequest } from '../middleware/adminAuth';
 import AppError from '../utils/AppError';
 import { CategorySchema } from '../validationSchema/category.validation';
 import { CustomerSchema } from '../validationSchema/customer.validation';
@@ -13,7 +12,7 @@ import CustomerService, { CustomerType } from '../services/CustomerService';
 
 const getAllCustomer = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const customerService = new CustomerService();
+    const customerService = new CustomerService(req.user.id);
 
     // Construct search object safely
     const searchQuery = req.query.search ? { name: String(req.query.search) } : undefined;
@@ -23,7 +22,12 @@ const getAllCustomer = async (req: Request, res: Response, next: NextFunction): 
       const id = parseInt(req.query.customer_id as string, 10);
 
       if (isNaN(id)) {
-        return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'Invalid customer ID', null);
+        return sendResponse(
+          res,
+          false,
+          STATUS_CODES.BAD_REQUEST,
+          ERROR_MESSAGES.INVALID('Customer ID')
+        );
       }
 
       const customer = await customerService.getCustomerById(id);
@@ -31,7 +35,7 @@ const getAllCustomer = async (req: Request, res: Response, next: NextFunction): 
         res,
         true,
         STATUS_CODES.SUCCESS,
-        'Customer fetched successfully',
+        ERROR_MESSAGES.FETCHED_SUCCESS('Customer'),
         customer
       );
     }
@@ -41,10 +45,16 @@ const getAllCustomer = async (req: Request, res: Response, next: NextFunction): 
       search: searchQuery
     });
 
-    return sendResponse(res, true, STATUS_CODES.SUCCESS, 'All customers fetched successfully', {
-      totalRecords,
-      customers: data
-    });
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.SUCCESS,
+      ERROR_MESSAGES.FETCHED_SUCCESS('Customer'),
+      {
+        totalRecords,
+        customers: data
+      }
+    );
   } catch (error) {
     next(error);
   }
@@ -56,13 +66,13 @@ const AddCustomer = async (req: Request, res: Response, next: NextFunction): Pro
     if (!isValid) {
       return;
     }
-    const customerSevice = new CustomerService();
+    const customerSevice = new CustomerService(req.user.id);
     const newCustomer = await customerSevice.addCustomer(req.body as CustomerType);
     return sendResponse(
       res,
       true,
       STATUS_CODES.SUCCESS,
-      'Customer Added Successfully',
+      ERROR_MESSAGES.CREATED_SUCCESS('Customer'),
       newCustomer
     );
   } catch (e) {
@@ -73,17 +83,17 @@ const AddCustomer = async (req: Request, res: Response, next: NextFunction): Pro
 const deleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     if (!req.body.customer_id) {
-      sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'Invalid Request');
+      sendResponse(res, false, STATUS_CODES.BAD_REQUEST, ERROR_MESSAGES.ID_REQUIRED('Customer'));
     }
 
-    const customerSevice = new CustomerService();
-    const deletedCategory = await customerSevice.deleteCustomer(req.body.customer_id);
+    const customerSevice = new CustomerService(req.user.id);
+    const deletedCategory = await customerSevice.deleteCustomer(Number(req.body.customer_id));
 
     return sendResponse(
       res,
       true,
       STATUS_CODES.SUCCESS,
-      'Customer deleted Successfully',
+      ERROR_MESSAGES.DELETE_SUCCESS('Customer'),
       deletedCategory
     );
   } catch (e) {
@@ -98,14 +108,14 @@ const updateCustomer = async (req: Request, res: Response, next: NextFunction): 
     if (!isValid) {
       return;
     }
-    const customerSevice = new CustomerService();
+    const customerSevice = new CustomerService(req.user.id);
     const updatedCustomer = await customerSevice.updateCustomer(req.body.customer_id, req.body);
 
     return sendResponse(
       res,
       true,
       STATUS_CODES.SUCCESS,
-      'Category Updated Successfully',
+      ERROR_MESSAGES.UPDATE_SUCCESS('Customer'),
       updatedCustomer
     );
   } catch (e) {

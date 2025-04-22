@@ -36,6 +36,7 @@ class UserService {
   async getUserById(user_id: number) {
     try {
       const user = await prisma.user.findUnique({
+        omit: { password: true },
         where: { user_id },
         include: { role: true }
       });
@@ -51,13 +52,15 @@ class UserService {
     try {
       const { username, password, role_id, contact_number, email, firstname, lastname } = user;
 
-      const existingUser = await prisma.user.findUnique({ where: { email } });
-
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ email: email }, { username: username }]
+        }
+      });
       if (existingUser) {
         throw new AppError(ERROR_MESSAGES.AUTH.ALREADY_REGISTERED, STATUS_CODES.CONFLICT);
       }
 
-      // Hash the password
       const hashedPassword = await BcryptService.hashPassword(password);
 
       if (!hashedPassword) {

@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import UserService, { User } from '../services/UserService';
 import STATUS_CODES from '../constants/statusCode';
-import sendResponse from '../utils/sendResponse';
-import BcryptService from '../utils/bcryptService';
 import fileValidationSchema, {
   loginSchema,
   registerUserSchema,
@@ -10,11 +8,11 @@ import fileValidationSchema, {
 } from '../validationSchema/user.validation';
 import { validateInput } from '../validationSchema';
 import ERROR_MESSAGES from '../constants/errorMessages';
+import sendResponse from '../utils/sendResponse';
+import BcryptService from '../utils/bcryptService';
 import { uploadFileToS3 } from '../utils/S3Service';
 import jwtService from '../utils/jwtService';
-import { AuthRequest } from '../middleware/adminAuth';
 import AppError from '../utils/AppError';
-import TmpImageService from '../services/TmpImageService';
 
 const login = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -25,15 +23,15 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<a
     }
 
     const userService = new UserService();
-    const user = await userService.getUserByEmail(email);
+    const { password: userPassword, ...safeUser } = await userService.getUserByEmail(email);
 
-    const isMatch = await BcryptService.comparePassword(password, user.password);
+    const isMatch = await BcryptService.comparePassword(password, userPassword);
 
-    const token = jwtService.generateToken({ id: user.user_id, email: user.email });
+    const token = jwtService.generateToken({ id: safeUser.user_id, email: safeUser.email });
 
     if (isMatch) {
       return sendResponse(res, true, STATUS_CODES.SUCCESS, ERROR_MESSAGES.AUTH.SUCCESS_LOGIN, {
-        user,
+        user: safeUser,
         token
       });
     } else {
@@ -72,15 +70,7 @@ const register = async (req: Request, res: Response, next: NextFunction): Promis
   }
 };
 
-const getUser = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
-  try {
-    return sendResponse(res, true, STATUS_CODES.CREATED, 'User registered successfully');
-  } catch (e) {
-    next(e);
-  }
-};
-
-const getUserDetail = async (req: AuthRequest, res: Response, next: NextFunction): Promise<any> => {
+const getUserDetail = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -88,7 +78,7 @@ const getUserDetail = async (req: AuthRequest, res: Response, next: NextFunction
     }
 
     const userService = new UserService();
-    const user = await userService.getUserById(4);
+    const user = await userService.getUserById(userId);
 
     return sendResponse(res, true, STATUS_CODES.SUCCESS, ERROR_MESSAGES.AUTH.SUCCESS_LOGIN, user);
   } catch (e) {
@@ -97,13 +87,13 @@ const getUserDetail = async (req: AuthRequest, res: Response, next: NextFunction
 };
 
 export const uploadProfilePic = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
   try {
     if (!req.file) {
-      return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, 'No file uploaded');
+      return sendResponse(res, false, STATUS_CODES.BAD_REQUEST, ERROR_MESSAGES.USER.NO_FILE_FOUND);
     }
     const isValid = validateInput(fileValidationSchema, { profile_image: req.file }, res);
 
@@ -112,23 +102,28 @@ export const uploadProfilePic = async (
     }
 
     if (!req.user || !req.user.id) {
-      return sendResponse(res, false, STATUS_CODES.UNAUTHORIZED, 'User not authenticated');
+      return sendResponse(res, false, STATUS_CODES.UNAUTHORIZED, ERROR_MESSAGES.UNAUTHENTIC_USER);
     }
 
     const { fileName } = await uploadFileToS3(req.file, 'profil_images');
 
     const userService = new UserService();
-    const updatedUser = await userService.updateUser(req.user.id, {
+    await userService.updateUser(req.user.id, {
       profile_image: fileName
     });
 
-    return sendResponse(res, true, STATUS_CODES.CREATED, 'Profile picture uploaded successfully');
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.CREATED,
+      ERROR_MESSAGES.USER.PROFILE_PIC_UPLOAD_SUCCESS
+    );
   } catch (error) {
     next(error);
   }
 };
-export const uploadProfile = async (
-  req: AuthRequest,
+export const updateProfile = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -142,13 +137,18 @@ export const uploadProfile = async (
     }
 
     const userService = new UserService();
-    const updatedUser = await userService.updateUser(userId, req.body);
+    await userService.updateUser(userId, req.body);
 
-    return sendResponse(res, true, STATUS_CODES.CREATED, 'Profile picture uploaded successfully');
+    return sendResponse(
+      res,
+      true,
+      STATUS_CODES.SUCCESS,
+      ERROR_MESSAGES.USER.PROFILE_UPDATED_SUCCESS
+    );
   } catch (error) {
     next(error);
   }
 };
-const userController = { login, register, getUser, uploadProfilePic, getUserDetail, uploadProfile };
+const userController = { login, register, uploadProfilePic, getUserDetail, updateProfile };
 
 export default userController;

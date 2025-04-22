@@ -3,6 +3,7 @@ import AppError from '../utils/AppError';
 import STATUS_CODES from '../constants/statusCode';
 import prismaErrorHandler from '../utils/prismaErrorHandler';
 import { paginateAndSort } from '../utils/pagination';
+import ERROR_MESSAGES from '../constants/errorMessages';
 
 export interface FarmType {
   farm_name: string;
@@ -45,7 +46,7 @@ class FarmService {
       });
 
       if (!farm) {
-        throw new AppError('Farm not found', STATUS_CODES.NOT_FOUND);
+        throw new AppError(ERROR_MESSAGES.RECORD_NOT_FOUND, STATUS_CODES.NOT_FOUND);
       }
 
       return farm;

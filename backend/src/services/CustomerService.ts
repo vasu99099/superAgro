@@ -15,9 +15,15 @@ export interface CustomerType {
 }
 
 class CustomerService {
+  userId: number;
+
+  constructor(userId: number) {
+    this.userId = userId;
+  }
+
   async getAllCustomer(query: any) {
     try {
-      const { skip, take, orderBy, where } = paginateAndSort(query);
+      const { skip, take, orderBy, where } = paginateAndSort(query, this.userId);
 
       const [allCustomers, totalRecords] = await prisma.$transaction([
         prisma.customer.findMany({
@@ -49,24 +55,34 @@ class CustomerService {
   async getCustomerById(customer_id: number) {
     try {
       const customer = await prisma.customer.findUnique({
-        where: { customer_id },
-        include: { village: true, farms: true }
+        where: { customer_id, user_id: this.userId },
+        include: { village: true, farms: { include: { village: { select: { name: true } } } } }
       });
-      return customer;
+      const formattedCustomers = {
+        ...customer,
+        farms: customer?.farms.map((farm) => ({
+          ...farm,
+          village_name: farm.village?.name
+        }))
+      };
+
+      return formattedCustomers;
     } catch (error) {
       throw prismaErrorHandler(error);
     }
   }
+
   async getCustomerCount() {
     try {
       const now = new Date();
       const startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-      const totalCustomers = await prisma.customer.count();
+      const totalCustomers = await prisma.customer.count({ where: { user_id: this.userId } });
 
       const monthNewCustomers = await prisma.customer.count({
         where: {
+          user_id: this.userId,
           created_at: {
             gte: startDate,
             lte: endDate
@@ -84,7 +100,7 @@ class CustomerService {
       const { phone } = customer;
 
       const existingCustomer = await prisma.customer.findUnique({
-        where: { phone }
+        where: { phone, user_id: this.userId }
       });
 
       if (existingCustomer) {
@@ -92,7 +108,7 @@ class CustomerService {
       }
 
       const newCustomer = await prisma.customer.create({
-        data: customer
+        data: { ...customer, user_id: this.userId }
       });
       return newCustomer;
     } catch (error) {
@@ -102,7 +118,7 @@ class CustomerService {
   async deleteCustomer(customer_id: number) {
     try {
       const deletedCustomer = await prisma.customer.delete({
-        where: { customer_id }
+        where: { customer_id, user_id: this.userId }
       });
       return deletedCustomer;
     } catch (error) {
@@ -111,8 +127,20 @@ class CustomerService {
   }
   async updateCustomer(customer_id: number, data: CustomerType) {
     try {
+      const existing = await prisma.customer.findFirst({
+        where: {
+          phone: data.phone,
+          user_id: this.userId,
+          NOT: { customer_id }
+        }
+      });
+
+      if (existing) {
+        throw new AppError(ERROR_MESSAGES.CUSTOMER.CUSTOMER_ALREADY_EXISTS, STATUS_CODES.CONFLICT);
+      }
+
       const updatedCustomer = await prisma.customer.update({
-        where: { customer_id },
+        where: { customer_id, user_id: this.userId },
         data: data
       });
       return updatedCustomer;
