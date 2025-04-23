@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Determine the correct .env file based on NODE_ENV
-const envFile = `.env.${process.env.NODE_ENV || 'dev'}`;
+// const envFile = `.env.${process.env.NODE_ENV || 'dev'}`;
+const envFile = `.env`;
 
 dotenv.config({ path: path.resolve(__dirname, `../../${envFile}`) });
 
